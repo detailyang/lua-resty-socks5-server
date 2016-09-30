@@ -121,7 +121,6 @@ local function receive_requests(sock)
     local data, err = sock:receive(4)
     if not data then
         ngx_log(ERR, "failed to receive requests: ", err)
-        ngx_exit(ngx.ERROR)
 
         return nil, err
     end
@@ -138,7 +137,6 @@ local function receive_requests(sock)
         local data, err = sock:receive(1)
         if not data then
             ngx_log(ngx_ERR, "failed to receive domain name len: ", err)
-            ngx_exit(ERROR)
 
             return nil, err
         end
@@ -152,7 +150,6 @@ local function receive_requests(sock)
     local data, err = sock:receive(dst_len + 2) -- port
     if err then
         ngx_log(ERR, "failed to receive DST.ADDR: ", err)
-        ngx_exit(ERROR)
 
         return nil, err
     end
@@ -241,6 +238,7 @@ function _M.run(username, password)
     local negotiation, err = receive_methods(downsock)
     if err then
         ngx_log(ERR, "receive methods error: ", err)
+        ngx_exit(ERROR)
 
         return
     end
@@ -263,6 +261,7 @@ function _M.run(username, password)
     local ok, err = send_method(downsock, method)
     if err then
         ngx_log(ERR, "send method error: ", err)
+        ngx_exit(ERROR)
 
         return
     end
@@ -284,6 +283,7 @@ function _M.run(username, password)
         local ok, err = send_auth_status(downsock, status)
         if err then
             ngx_log(ERR, "send auth status error: ", err)
+            ngx_exit(ERROR)
 
             return
         end
@@ -296,6 +296,7 @@ function _M.run(username, password)
     local requests, err = receive_requests(downsock)
     if err then
         ngx_log(ERR, "send request error: ", err)
+        ngx_exit(ERROR)
 
         return
     end
@@ -305,6 +306,7 @@ function _M.run(username, password)
         if err then
             ngx_log(ERR, "send replies error: ", err)
             ngx_exit(ERROR)
+
         end
 
         return
@@ -335,7 +337,7 @@ function _M.run(username, password)
                 end
 
                 if err ~= 'closed' then
-                    ngx_log(ERR, "pip receive the src get error: ", err)
+                    ngx_log(ERR, "pipe receive the src get error: ", err)
                 end
 
                 break
@@ -343,7 +345,7 @@ function _M.run(username, password)
 
             local ok, err = dst:send(data)
             if err then
-                ngx_log(ERR, "pip send the dst get error: ", err)
+                ngx_log(ERR, "pipe send the dst get error: ", err)
 
                 return
             end
