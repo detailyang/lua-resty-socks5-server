@@ -37,6 +37,7 @@ local ADDRESS_TYPE_NOT_SUPPORTED = 0x08
 local UNASSIGNED = 0x09
 
 local _M = {
+    _VERSION = '0.1.0',
     support_methods = {
         [NOAUTH]  = true,
         [AUTH] = true
