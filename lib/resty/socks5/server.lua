@@ -227,12 +227,15 @@ local function send_auth_status(sock, status)
     return sock:send(data)
 end
 
-function _M.run(username, password)
+function _M.run(timeout, username, password)
     local downsock, err = assert(ngx.req.socket(true))
     if not downsock then
         ngx_log(ERR, "failed to get the request socket: ", err)
         return ngx.exit(ERROR)
     end
+
+    timeout = timeout or 1000
+    downsock:settimeout(timeout)
 
     local negotiation, err = receive_methods(downsock)
     if err then
@@ -311,7 +314,10 @@ function _M.run(username, password)
         return
     end
 
-    local upsock, err = ngx.socket.connect(requests.addr, requests.port)
+    local upsock = ngx.socket.tcp()
+    upsock:settimeout(timeout)
+
+    local ok, err = upsock:connect(requests.addr, requests.port)
     if err then
         ngx_log(ERR, "connect request " .. requests.addr ..
             ":" .. requests.port .. " error: ", err)
