@@ -19,9 +19,9 @@ local IANA = 0x03
 local RESERVED = 0x80
 local NOMETHODS = 0xFF
 local VERSION = 0x05
-local IPv4 = 0x01
+local IPV4 = 0x01
 local DOMAIN_NAME = 0x03
-local IPv6 = 0x04
+local IPV6 = 0x04
 local CONNECT = 0x01
 local BIND = 0x02
 local UDP = 0x03
@@ -49,7 +49,6 @@ local function send_method(sock, method)
 
     return sock:send(data)
 end
-
 
 local function receive_methods(sock)
     --
@@ -83,7 +82,6 @@ local function receive_methods(sock)
     }, nil
 end
 
-
 local function send_replies(sock, rep, atyp, addr, port)
     --
     --+----+-----+-------+------+----------+----------+
@@ -97,12 +95,12 @@ local function send_replies(sock, rep, atyp, addr, port)
     data[2] = char(rep)
     data[3] = char(RSV)
 
-    if atype then
+    if atyp then
         data[4] = atyp
         data[5] = addr
         data[6] = port
     else
-        data[4] = char(IPv4)
+        data[4] = char(IPV4)
         data[5] = "\x00\x00\x00\x00"
         data[6] = "\x00\x00"
     end
@@ -137,12 +135,12 @@ local function receive_requests(sock)
     elseif atyp == DOMAIN_NAME then
         local data, err = sock:receive(1)
         if not data then
-            ngx_log(ngx_ERR, "failed to receive domain name len: ", err)
+            ngx_log(ERR, "failed to receive domain name len: ", err)
 
             return nil, err
         end
         dst_len = byte(data, 1)
-    elseif atype == IPv6 then
+    elseif atyp == IPV6 then
         dst_len = 16
     else
         return nil, "unknow atyp " .. atyp
@@ -315,7 +313,8 @@ function _M.run(username, password)
 
     local upsock, err = ngx.socket.connect(requests.addr, requests.port)
     if err then
-        ngx_log(ERR, "connect request " .. request.addr .. ":" .. request.port .. " error: ", err)
+        ngx_log(ERR, "connect request " .. requests.addr ..
+            ":" .. requests.port .. " error: ", err)
         ngx_exit(ERROR)
 
         return
