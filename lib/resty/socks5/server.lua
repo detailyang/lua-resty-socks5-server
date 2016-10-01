@@ -1,3 +1,5 @@
+local _M = { _VERSION = '0.1.0' }
+
 local bit = require "bit"
 local byte = string.byte
 local char = string.char
@@ -35,13 +37,9 @@ local TTL_EXPIRED = 0x06
 local COMMAND_NOT_SUPORTED = 0x07
 local ADDRESS_TYPE_NOT_SUPPORTED = 0x08
 local UNASSIGNED = 0x09
-
-local _M = {
-    _VERSION = '0.1.0',
-    support_methods = {
-        [NOAUTH]  = true,
-        [AUTH] = true
-    }
+local support_methods = {
+    [NOAUTH]  = true,
+    [AUTH] = true
 }
 
 local function send_method(sock, method)
