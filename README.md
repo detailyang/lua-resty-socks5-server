@@ -39,7 +39,7 @@ Make sure your stream_lua_nginx's cosocket support the API `tcpsock:receive('*b'
 API
 ====
 
-new
+run
 ---
 `syntax: module.run(timeout[,username, password])`
 
