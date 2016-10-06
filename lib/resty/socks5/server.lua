@@ -43,6 +43,14 @@ local support_methods = {
 }
 
 local function send_method(sock, method)
+    --
+    --+----+--------+
+    --|VER | METHOD |
+    --+----+--------+
+    --| 1  |   1    |
+    --+----+--------+
+    --
+    
     local data = char(VERSION, method)
 
     return sock:send(data)
@@ -56,6 +64,7 @@ local function receive_methods(sock)
     --   | 1  |    1     | 1 to 255 |
     --   +----+----------+----------+
     --
+    
     local data, err = sock:receive(2)
     if not data then
         ngx_exit(ERROR)
@@ -88,6 +97,7 @@ local function send_replies(sock, rep, atyp, addr, port)
     --| 1  |  1  | X'00' |  1   | Variable |    2     |
     --+----+-----+-------+------+----------+----------+
     --
+    
     local data = {}
     data[1] = char(VERSION)
     data[2] = char(rep)
@@ -115,6 +125,7 @@ local function receive_requests(sock)
     -- | 1  |  1  | X'00' |  1   | Variable |    2     |
     -- +----+-----+-------+------+----------+----------+
     --
+    
     local data, err = sock:receive(4)
     if not data then
         ngx_log(ERR, "failed to receive requests: ", err)
@@ -173,6 +184,8 @@ local function receive_auth(sock)
     --+----+------+----------+------+----------+
     --| 1  |  1   | 1 to 255 |  1   | 1 to 255 |
     --+----+------+----------+------+----------+
+    --
+    
     local data, err = sock:receive(2)
     if err then
         return nil, err
