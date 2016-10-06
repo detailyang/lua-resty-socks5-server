@@ -16,7 +16,7 @@ Table of Contents
 
 Status
 ====
-Experimental
+Experimental (works well on personal server)
 
 Usage
 ====
