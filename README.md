@@ -30,8 +30,8 @@ Make sure your stream_lua_nginx's cosocket support the API `tcpsock:receive('*b'
                 local socks5_server = require "lib.resty.socks5.server"
 
                 socks5_server.run(3000)
-                # or if you want to enable authentication
-                # socks5_server.run(3000, "username", "password")
+                -- or if you want to enable authentication
+                -- socks5_server.run(3000, "username", "password")
         }
     }
 ````
