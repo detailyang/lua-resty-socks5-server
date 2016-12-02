@@ -22,7 +22,7 @@ Usage
 ====
 Make sure your stream_lua_nginx's cosocket support the API `tcpsock:receive('*b')`, we are rely on it to implementation full duplex between upstream and downstream.
 
-````bash
+```bash
     server {
         listen 1234;
 
@@ -34,7 +34,7 @@ Make sure your stream_lua_nginx's cosocket support the API `tcpsock:receive('*b'
                 -- socks5_server.run(3000, "username", "password")
         }
     }
-````
+```
 
 API
 ====
