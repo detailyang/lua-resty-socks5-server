@@ -163,6 +163,26 @@ local function receive_requests(sock)
     end
 
     local dst = sub(data, 1, dst_len)
+    if atyp == IPV4 then
+        dst = string.format("%d.%d.%d.%d",
+                byte(data, 1),
+                byte(data, 2),
+                byte(data, 3),
+                byte(data, 4)
+                )
+    elseif atyp == IPV6 then
+        dst = string.format("[%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X]",
+                byte(dst, 1), byte(dst, 2),
+                byte(dst, 3), byte(dst, 4),
+                byte(dst, 5), byte(dst, 6),
+                byte(dst, 7), byte(dst, 8),
+                byte(dst, 9), byte(dst, 10),
+                byte(dst, 11), byte(dst, 12),
+                byte(dst, 13), byte(dst, 14),
+                byte(dst, 15), byte(dst, 16)
+                )
+    end
+
     local port_2 = byte(data, dst_len + 1)
     local port_1 = byte(data, dst_len + 2)
     local port = port_1 + port_2 * 256
