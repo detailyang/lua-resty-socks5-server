@@ -50,7 +50,7 @@ local function send_method(sock, method)
     --| 1  |   1    |
     --+----+--------+
     --
-    
+
     local data = char(VERSION, method)
 
     return sock:send(data)
@@ -64,7 +64,7 @@ local function receive_methods(sock)
     --   | 1  |    1     | 1 to 255 |
     --   +----+----------+----------+
     --
-    
+
     local data, err = sock:receive(2)
     if not data then
         ngx_exit(ERROR)
@@ -97,7 +97,7 @@ local function send_replies(sock, rep, atyp, addr, port)
     --| 1  |  1  | X'00' |  1   | Variable |    2     |
     --+----+-----+-------+------+----------+----------+
     --
-    
+
     local data = {}
     data[1] = char(VERSION)
     data[2] = char(rep)
@@ -125,7 +125,7 @@ local function receive_requests(sock)
     -- | 1  |  1  | X'00' |  1   | Variable |    2     |
     -- +----+-----+-------+------+----------+----------+
     --
-    
+
     local data, err = sock:receive(4)
     if not data then
         ngx_log(ERR, "failed to receive requests: ", err)
@@ -163,26 +163,6 @@ local function receive_requests(sock)
     end
 
     local dst = sub(data, 1, dst_len)
-    if atyp == IPV4 then
-        dst = string.format("%d.%d.%d.%d",
-                byte(data, 1),
-                byte(data, 2),
-                byte(data, 3),
-                byte(data, 4)
-                )
-    elseif atyp == IPV6 then
-        dst = string.format("[%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X]",
-                byte(dst, 1), byte(dst, 2),
-                byte(dst, 3), byte(dst, 4),
-                byte(dst, 5), byte(dst, 6),
-                byte(dst, 7), byte(dst, 8),
-                byte(dst, 9), byte(dst, 10),
-                byte(dst, 11), byte(dst, 12),
-                byte(dst, 13), byte(dst, 14),
-                byte(dst, 15), byte(dst, 16)
-                )
-    end
-
     local port_2 = byte(data, dst_len + 1)
     local port_1 = byte(data, dst_len + 2)
     local port = port_1 + port_2 * 256
@@ -205,7 +185,7 @@ local function receive_auth(sock)
     --| 1  |  1   | 1 to 255 |  1   | 1 to 255 |
     --+----+------+----------+------+----------+
     --
-    
+
     local data, err = sock:receive(2)
     if err then
         return nil, err
@@ -257,6 +237,31 @@ local function send_auth_status(sock, status)
 
     return sock:send(data)
 end
+
+local function stringify_addr(atyp, addr)
+    if atyp == IPV4 then
+        dst = string.format("%d.%d.%d.%d",
+                byte(data, 1),
+                byte(data, 2),
+                byte(data, 3),
+                byte(data, 4)
+                )
+    elseif atyp == IPV6 then
+        dst = string.format("[%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X:%02X%02X]",
+                byte(dst, 1), byte(dst, 2),
+                byte(dst, 3), byte(dst, 4),
+                byte(dst, 5), byte(dst, 6),
+                byte(dst, 7), byte(dst, 8),
+                byte(dst, 9), byte(dst, 10),
+                byte(dst, 11), byte(dst, 12),
+                byte(dst, 13), byte(dst, 14),
+                byte(dst, 15), byte(dst, 16)
+                )
+    else
+        return addr
+    end
+end
+
 
 function _M.run(timeout, username, password)
     local downsock, err = assert(ngx.req.socket(true))
@@ -348,7 +353,8 @@ function _M.run(timeout, username, password)
     local upsock = ngx.socket.tcp()
     upsock:settimeout(timeout)
 
-    local ok, err = upsock:connect(requests.addr, requests.port)
+    local addr = stringify_addr(requests.atyp, requests.addr)
+    local ok, err = upsock:connect(addr, requests.port)
     if err then
         ngx_log(ERR, "connect request " .. requests.addr ..
             ":" .. requests.port .. " error: ", err)
