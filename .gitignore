@@ -41,3 +41,4 @@ luac.out
 
 t/servroot
 resty_modules
+lua-resty-socks5-server-*
