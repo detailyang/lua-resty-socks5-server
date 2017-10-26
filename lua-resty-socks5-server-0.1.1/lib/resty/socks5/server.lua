@@ -1,4 +1,4 @@
-local _M = { _VERSION = '0.1.2' }
+local _M = { _VERSION = '0.1.1' }
 
 local bit = require "bit"
 local byte = string.byte
