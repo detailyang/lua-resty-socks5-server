@@ -375,7 +375,7 @@ function _M.run(timeout, username, password)
         while true do
             local data, err, partial = src:receive('*b')
             if not data then
-                if not partial then
+                if partial then
                     dst:send(partial)
                 end
 
